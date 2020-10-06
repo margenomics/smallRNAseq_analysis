@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# QC Analysis of smallRNA-Seq samples of project: 
+
+PROJECT=20200608_NGarcia_miRNA_Covid19
+
+# Prepare variables
+#------------------
+
+path=/bicoh/MARGenomics
+DIR=${path}/${PROJECT}
+FASTQDIR=${DIR}/rawData
+
+#==========
+# rawData QC
+#==========
+
+run=QC_rawData
+# FasQC and FastqScreen
+mkdir $DIR/QC/QC_rawData
+sbatch $DIR/QC/QC_loop.sh $PROJECT $run
+sbatch $DIR/QC/QC_Stats.sh $PROJECT $run
+
+

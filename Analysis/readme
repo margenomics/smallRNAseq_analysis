@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Analysis of 28 smallRNASeq samples (QIAseq) from plasma of Covid-19 infected patients. 
+# Protocol QIAseq smallRNASeq (UMI). Illumina 1x75bp.
+# Theorical goal: 15M reads/sample
+
+# Júlia Perera
+# 11.6.2020
+
+PROJECT=20200608_NGarcia_miRNA_Covid19
+
+# Prepare variables
+#------------------
+
+path=/bicoh/MARGenomics
+DIR=${path}/${PROJECT}
+FASTQDIR=${DIR}/rawData
+
+############################################
+## Best pipeline
+############################################
+
+# Umi extract allowing 1 mismatch
+# Cutadapt min 15
+# Merge lanes
+# Align to miRBASe hairpin v22
+# Index bams
+# featureCounts_bamout
+# UMI count
+# tsv stats
+
+#=========================#
+# 1)EXTRACT UMI + FASTQC  #
+#=========================#
+sbatch $DIR/Analysis/01_ExtractUMI/umi_extract.loop.sh $PROJECT
+
+
+#==============================#
+# 2) CUTADAPT   + Merge Lanes  #
+#==============================#
+sbatch $DIR/Analysis/02_Cutadapt/cutadapt.loop.sh $PROJECT
+sbatch $DIR/Analysis/02_Cutadapt/merge.loop.sh $PROJECT
+sbatch $DIR/Analysis/02_Cutadapt/Stats.sh $PROJECT
+
+#==================================#
+# 3) Align to miRBASe hairpin v22  #
+#==================================#
+sbatch $DIR/Analysis/03_ReadMapping/star.loop.sh $PROJECT
+sbatch $DIR/Analysis/03_ReadMapping/Stats.sh $PROJECT
+
+#=================================================#
+# 4) FeatureCounts and UMI counts - unique method #
+#=================================================#
+sbatch $DIR/Analysis/04_Quantification/quantification.loop.sh $PROJECT
+sbatch $DIR/Analysis/04_Quantification/Stats.sh $PROJECT
+
